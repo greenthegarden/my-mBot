@@ -7,25 +7,25 @@
 // Thanks to James Brown for information on pins
 // http://blog.hmpg.net/2016/04/makeblock-mcore-information.html
 
-boolean buttonPressed = false;
-int button_pin = A7;
-void readButtonInner(uint8_t button_pin, int8_t s)
-{
-  //int pin = A7;
-  pinMode(button_pin,INPUT);
-  boolean currentPressed = !(analogRead(button_pin)>10);
+const int buttonPin = A7;    // the number of the pushbutton pin
 
-  if(buttonPressed == currentPressed){
+// Variables will change:
+int drive = LOW;            // the current state of the output pin
+boolean buttonPressed = false;
+int BUTTON_LOW_VOLTAGE = 10;
+void readButton() {
+  boolean currentPressed = !(analogRead(buttonPin)>10);
+  if(buttonPressed == currentPressed) {
     return;
   }
   buttonPressed = currentPressed;
 }
 
 MeBuzzer buzzer;  // Initialize buzzer
-void buzzerOn(){
+void buzzerOn() {
   buzzer.tone(500,1000);
 }
-void buzzerOff(){
+void buzzerOff() {
   buzzer.noTone();
 }
 
@@ -35,8 +35,7 @@ MeLineFollower lineFinder(PORT_2);
 int sensorState = lineFinder.readSensors();
 void readLine()
 {
-  switch(sensorState)
-  {
+  switch(sensorState) {
     case S1_IN_S2_IN:
       Serial.println("Sensor 1 and 2 are inside of black line"); break;
     case S1_IN_S2_OUT:
@@ -108,37 +107,49 @@ void stopMotors() {
 void setup()
 {
   Serial.begin(9600); //Begins communication with the computer at a baud rate of 9600
-  direction = DIR_FORWARD;
-  move(direction, motorSpeed);
   rgb.setpin(13);
-  rgb.setColor(10, 255, 10);
+  rgb.setColor(255, 255, 10);
   rgb.show();
+  Serial.println("my-mBot");
+  //button adc input
+   pinMode( buttonPin, INPUT );         //ensure A0 is an input
+   digitalWrite( buttonPin, LOW );      //ensure pullup is off on A0
 }
 
 void loop()
 {
   unsigned long currentMillis = millis();
-  // use arduino timer to publish reports
-  if (currentMillis - previousMotorReverseMillis >= MOTOR_REVERSE_INTERVAL) {
-    previousMotorReverseMillis = currentMillis;
-    if (direction==DIR_FORWARD) {
-      direction=DIR_BACKWARD;
-    } else {
-      direction=DIR_FORWARD;
-    }
-    move(direction, motorSpeed);
+  readButton();
+  if (buttonPressed) {
+    drive = !drive;
+    Serial.print("Drive state is ");
+    if (drive) Serial.println("ON");
+    else Serial.println("OFF");
   }
-  if (currentMillis - previousDistanceMeasurementMillis >= DISTANCE_MEASUREMENT_INTERVAL) {
-    previousDistanceMeasurementMillis = currentMillis;
-    Serial.print("Distance : "); //Prints the string "Distance : " over the serial most likely the usb. Can be seen using serial monitor in arduino tools setting
-    Serial.print(ultrasonic.distanceCm()); //Prints the value received from the Ultrasonic Sensor in Centimeters. Can be changed to inches with .distanceIn()
-    // mBot note: .distanceIn() does not seem to work on my mBot.
-    Serial.println(" cm");//Prints the string "cm" followed by a new line
-    if(ultrasonic.distanceCm()<20) { //if statement to check if data received is less than the value 20, in this case 20 centimeters
-      //If value is true the following code executes if false, code will skip this section
-      buzzer.tone(262,500); //turns buzzer on
-      delay(500); //waits 500 milliseconds or half a second with a minimum value of 100 or 1/10 of a second
-      buzzer.tone(0); //turns buzzer off
-    }
-  }
+  // if (drive) {
+  //   if (currentMillis - previousMotorReverseMillis >= MOTOR_REVERSE_INTERVAL) {
+  //     previousMotorReverseMillis = currentMillis;
+  //     if (direction==DIR_FORWARD) {
+  //       direction=DIR_BACKWARD;
+  //       Serial.println("Direction is BACKWARD");
+  //     } else {
+  //       direction=DIR_FORWARD;
+  //       Serial.println("Direction is FORWARD");
+  //     }
+  //     move(direction, motorSpeed);
+  //   }
+  // }
+  // if (currentMillis - previousDistanceMeasurementMillis >= DISTANCE_MEASUREMENT_INTERVAL) {
+  //   previousDistanceMeasurementMillis = currentMillis;
+  //   Serial.print("Distance : "); //Prints the string "Distance : " over the serial most likely the usb. Can be seen using serial monitor in arduino tools setting
+  //   Serial.print(ultrasonic.distanceCm()); //Prints the value received from the Ultrasonic Sensor in Centimeters. Can be changed to inches with .distanceIn()
+  //   // mBot note: .distanceIn() does not seem to work on my mBot.
+  //   Serial.println(" cm");//Prints the string "cm" followed by a new line
+  //   if (ultrasonic.distanceCm() < 20) { //if statement to check if data received is less than the value 20, in this case 20 centimeters
+  //     //If value is true the following code executes if false, code will skip this section
+  //     buzzer.tone(262,500); //turns buzzer on
+  //     delay(500); //waits 500 milliseconds or half a second with a minimum value of 100 or 1/10 of a second
+  //     buzzer.tone(0); //turns buzzer off
+  //   }
+  // }
 }
