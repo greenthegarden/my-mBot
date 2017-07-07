@@ -9,7 +9,7 @@
 #include "MeLineFollower.h"
 #include "MeUltrasonicSensor.h"
 #include "MeDCMotor.h"
-#include "MeRGBLed.h"
+#include "MergbLed.h"
 
 
 // Example project for Makeblock mBot
@@ -77,10 +77,12 @@ void buzzerOff() {
 }
 
 // onboard led parameters and methods
-MeRGBLed rgb(0);
-void rgbOff() {
-  rgb.setColor(0,0,0);
-  rgb.show();
+MeRGBLed rgbLed(0);
+const byte rgbLed_1_IDX = 1;
+const byte rgbLed_2_IDX = 2;
+void rgbLedOff() {
+  rgbLed.setColor(0,0,0);
+  rgbLed.show();
 }
 
 // light sensor parameters and methods
@@ -132,27 +134,27 @@ void move(int dir, int spd) {
   if (dir==DIR_FORWARD) {
     leftSpeed = -spd;
     rightSpeed = spd;
-    rgb.setColor(1, 0, 255, 0);
-    rgb.setColor(2, 0, 255, 0);
-    rgb.show();
+    rgbLed.setColor(rgbLed_1_IDX, 0, 255, 0);
+    rgbLed.setColor(rgbLed_2_IDX, 0, 255, 0);
+    rgbLed.show();
   } else if (dir==DIR_BACKWARD) {
     leftSpeed = spd;
     rightSpeed = -spd;
-    rgb.setColor(1, 255, 0, 0);
-    rgb.setColor(2, 255, 0, 0);
-    rgb.show();
+    rgbLed.setColor(rgbLed_1_IDX, 255, 0, 0);
+    rgbLed.setColor(rgbLed_2_IDX, 255, 0, 0);
+    rgbLed.show();
   }  else if (dir==DIR_LEFT) {
     leftSpeed = -spd;
     rightSpeed = -spd;
-    rgb.setColor(1, 0, 255, 0);
-    rgb.setColor(2, 255, 0, 0);
-    rgb.show();
+    rgbLed.setColor(rgbLed_1_IDX, 0, 255, 0);
+    rgbLed.setColor(rgbLed_2_IDX, 255, 0, 0);
+    rgbLed.show();
   } else if (dir==DIR_RIGHT) {
     leftSpeed = spd;
     rightSpeed = spd;
-    rgb.setColor(1, 255, 0, 0);
-    rgb.setColor(2, 0, 255, 0);
-    rgb.show();
+    rgbLed.setColor(rgbLed_1_IDX, 255, 0, 0);
+    rgbLed.setColor(rgbLed_2_IDX, 0, 255, 0);
+    rgbLed.show();
   }
 //  motorL.setpin(MOTOR_L_DIR_PIN, MOTOR_L_PWM_PIN);
   motorL.run(leftSpeed);
@@ -164,14 +166,14 @@ void stopMotors() {
   motorL.stop();
 //  motorR.setpin(MOTOR_R_DIR_PIN, MOTOR_R_PWM_PIN);
   motorR.stop();
-  rgbOff();
+  rgbLedOff();
 }
 
 void setup()
 {
   Serial.begin(9600); //Begins communication with the computer at a baud rate of 9600
-  rgb.setpin(13);
-  rgbOff();
+  rgbLed.setpin(13);
+  rgbLedOff();
   Serial.println("my-mBot");
   pinMode(BUTTON_PIN, INPUT);         //ensure A0 is an input
   digitalWrite(BUTTON_PIN, LOW);      //ensure pullup is off on A0
@@ -217,10 +219,19 @@ void loop()
   // }
   if (currentMillis - previousLightSensorMeasurementMillis >= LIGHTSENSOR_MEASUREMENT_INTERVAL) {
     previousLightSensorMeasurementMillis = currentMillis;
+    // switch off leds before taking a measurement
+    cRGB rgb_1 = rgbLed.getColorAt(rgbLed_1_IDX);
+    cRGB rgb_2 = rgbLed.getColorAt(rgbLed_2_IDX);
+    rgbLedOff();
+    delay(100);
     Serial.print("Light Level : "); //Prints the string "Distance : " over the serial most likely the usb. Can be seen using serial monitor in arduino tools setting
     int lightlevel = analogRead(LIGHTSENSOR_PIN);
 //    int lightlevel = lightsensor.read();
     Serial.println(lightlevel); //Prints the value received from the Ultrasonic Sensor in Centimeters. Can be changed to inches with .distanceIn()
+    // switch leds to previous state
+    rgbLed.setColor(rgbLed_1_IDX, rgb_1.r, rgb_1.g, rgb_1.b);
+    rgbLed.setColor(rgbLed_2_IDX, rgb_2.r, rgb_2.g, rgb_2.b);
+    rgbLed.show();
     // if (lightlevel < 100) {
     //   lightsensor.lightOn();
     // } else {
