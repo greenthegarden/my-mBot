@@ -106,6 +106,7 @@ void buzzerOff() {
 
 // onboard led parameters and methods
 #ifdef ME_PORT_DEFINED
+//MeRGBLed rgbLed(0,2);
 MeRGBLed rgbLed(0,2);
 const byte rgbLed_1_IDX = 0;
 const byte rgbLed_2_IDX = 1;
@@ -184,8 +185,8 @@ void move(int dir, int spd) {
   if (dir==DIR_FORWARD) {
     leftSpeed = -spd;
     rightSpeed = spd;
-    rgbLed.setColorAt(rgbLed_1_IDX, 0, 255, 0);
-    rgbLed.setColorAt(rgbLed_2_IDX, 0, 255, 0);
+    rgbLed.setColor(rgbLed_1_IDX, 0, 255, 0);
+    rgbLed.setColor(rgbLed_2_IDX, 0, 255, 0);
     rgbLed.show();
   } else if (dir==DIR_BACKWARD) {
     leftSpeed = spd;
@@ -216,10 +217,11 @@ void stopMotors() {
   motorL.stop();
 //  motorR.setpin(MOTOR_R_DIR_PIN, MOTOR_R_PWM_PIN);
   motorR.stop();
-//  rgbLedOff();
-  rgbLed.setColor(255, 255, 0);
-  rgbLed.show();
-
+  rgbLedOff();
+  // if (!rgbLed.setColor(255, 255, 0)) {
+  //   Serial.println("ERROR: setColor");
+  // }
+  // rgbLed.show();
 }
 
 void setup()
@@ -227,16 +229,23 @@ void setup()
   Serial.begin(BAUD);
 #ifndef ME_PORT_DEFINED
   ultrasonic.setpin(ULTRASONIC_SENSOR_S1_PIN, ULTRASONIC_SENSOR_S2_PIN);
-  lightsensor.setpin(8, LIGHTSENSOR_PIN);
   pinMode(LIGHTSENSOR_PIN, INPUT);
 #endif
   pinMode(BUTTON_PIN, INPUT);
   digitalWrite(BUTTON_PIN, LOW);
+  pinMode(LIGHTSENSOR_PIN, INPUT);
+  lightsensor.setpin(8, LIGHTSENSOR_PIN);
+  buzzer.setpin(BUZZER_PIN);
   pinMode(RGB_LED_PIN,OUTPUT);
   rgbLed.setpin(RGB_LED_PIN);
-//  rgbLedOff();
-  rgbLed.setColor(255, 255, 0);
-  rgbLed.show();
+  rgbLedOff();
+  // if (!rgbLed.setColor(rgbLed_1_IDX, 255, 255, 0)) {
+  //   Serial.println("ERROR: setColorAt rgbLed_1_IDX");
+  // }
+  // if (!rgbLed.setColor(rgbLed_2_IDX, 0, 0, 0)) {
+  //     Serial.println("ERROR: setColor rgbLed_2_IDX");
+  // }
+  // rgbLed.show();
   Serial.println("my-mBot");
 }
 
@@ -274,16 +283,16 @@ void loop()
       buzzerOn();
     }
   }
-  // if (currentMillis - previousLightSensorMeasurementMillis >= LIGHTSENSOR_MEASUREMENT_INTERVAL) {
-  //   previousLightSensorMeasurementMillis = currentMillis;
+  if (currentMillis - previousLightSensorMeasurementMillis >= LIGHTSENSOR_MEASUREMENT_INTERVAL) {
+    previousLightSensorMeasurementMillis = currentMillis;
   //   // switch off leds before taking a measurement
   //   cRGB rgb_1 = rgbLed.getColorAt(rgbLed_1_IDX);
   //   cRGB rgb_2 = rgbLed.getColorAt(rgbLed_2_IDX);
   //   rgbLedOff();
   //   delay(100);
-  //   Serial.print("Light Level : ");
-  //   int lightlevel = lightsensor.read();
-  //   Serial.println(lightlevel);
+    int lightlevel = lightsensor.read();
+    Serial.print("Light Level : ");
+    Serial.println(lightlevel);
   //   // switch leds to previous state
   //   rgbLed.setColorAt(rgbLed_1_IDX, rgb_1.r, rgb_1.g, rgb_1.b);
   //   rgbLed.setColorAt(rgbLed_2_IDX, rgb_2.r, rgb_2.g, rgb_2.b);
@@ -293,5 +302,5 @@ void loop()
   //   // } else {
   //   //   lightsensor.lightOff();
   //   // }
-  // }
+  }
 }
