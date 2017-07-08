@@ -46,9 +46,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <Arduino.h>
+#include "MeConfig.h"
 
 #ifdef ME_PORT_DEFINED
-#include "MeConfig.h"
 #include "MePort.h"
 #endif // ME_PORT_DEFINED
 

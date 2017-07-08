@@ -148,11 +148,11 @@ MeDCMotor::MeDCMotor(uint8_t port) : MePort(port)
  * \param[in]
  *   pwm_pin - arduino port for pwm input(should analog pin)
  */
-MeDCMotor::MeDCMotor(uint8_t dir_pin, uint8_t pwm_pin)
+MeDCMotor::MeDCMotor(uint8_t dir_pin,uint8_t pwm_pin)
 {
   dc_dir_pin = dir_pin;
   dc_pwm_pin = pwm_pin;
-
+  
   pinMode(dc_dir_pin, OUTPUT);
 }
 #endif /* ME_PORT_DEFINED */
@@ -184,7 +184,6 @@ void MeDCMotor::setpin(uint8_t dir_pin,uint8_t pwm_pin)
 #endif // ME_PORT_DEFINED
 }
 
-#ifdef ME_PORT_DEFINED
 /**
  * \par Function
  *   reset
@@ -226,7 +225,6 @@ void MeDCMotor::reset(uint8_t port, uint8_t slot)
   MePort::reset(port, slot);
   last_speed = 500;
 }
-#endif
 
 /**
  * \par Function
@@ -296,3 +294,4 @@ void MeDCMotor::stop(void)
 {
   MeDCMotor::run(0);
 }
+

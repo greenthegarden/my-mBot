@@ -44,9 +44,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <Arduino.h>
+#include "MeConfig.h"
 
 #ifdef ME_PORT_DEFINED
-#include "MeConfig.h"
 #include "MePort.h"
 #endif //  ME_PORT_DEFINED
 
@@ -90,7 +90,7 @@ public:
  *    None
  */
   Me4Button(void);
-
+  
 /**
  *  Alternate Constructor which can call your own function to map the Me4Button to arduino port, \n
  *  the slot2 pin will be used for key pin.

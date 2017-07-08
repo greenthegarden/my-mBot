@@ -21,7 +21,7 @@
  * distributed. See http://www.gnu.org/copyleft/gpl.html
  *
  * \par Description
- * This file is a drive for Me Buzzer device, The Me Buzzer inherited the
+ * This file is a drive for Me Buzzer device, The Me Buzzer inherited the 
  * MeSerial class from SoftwareSerial.
  *
  * \par Method List:
@@ -46,9 +46,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <Arduino.h>
+#include "MeConfig.h"
 
 #ifdef ME_PORT_DEFINED
-#include "MeConfig.h"
 #include "MePort.h"
 #endif // ME_PORT_DEFINED
 
@@ -57,10 +57,10 @@
  * \par Description
  * Declaration of Class MeBuzzer.
  */
-#ifdef ME_PORT_DEFINED
 class MeBuzzer : public MePort
 {
 public:
+#ifdef ME_PORT_DEFINED
 /**
  * Alternate Constructor which can call your own function to map the buzzer to arduino port,
  * no pins are used or initialized here.
@@ -79,7 +79,7 @@ public:
 
 /**
  * Alternate Constructor which can call your own function to map the Buzzer to arduino port,
- * you can set any slot for the buzzer device.
+ * you can set any slot for the buzzer device. 
  * \param[in]
  *   port - RJ25 port from PORT_1 to M2
  * \param[in]
@@ -92,9 +92,6 @@ public:
  * \param[in]
  *   switchPin - arduino port for buzzer detect pin.
 */
-class MeBuzzer
-{
-public:
   MeBuzzer(int pin);
 #endif // ME_PORT_DEFINED
 /**

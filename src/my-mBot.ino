@@ -6,6 +6,9 @@
 
 #include "MeMCore.h"
 
+const byte BUZZER_PIN = 8;
+const byte RGB_LED_PIN = 13;
+const byte LIGHTSENSOR_PIN = A6;
 const byte BUTTON_PIN = A7;
 
 #else
@@ -85,25 +88,32 @@ boolean buttonStateChange() {
 
 // buzzer parameters and methods
 #ifdef ME_PORT_DEFINED
-MeBuzzer buzzer();
+MeBuzzer buzzer(BUZZER_PIN);
 #else
-MeBuzzer buzzer(BUZZER_PIN);  // Initialize buzzer
+MeBuzzer buzzer(BUZZER_PIN);
 #endif
-// void buzzerOn() {
-//   buzzer.tone(500,1000);
-// }
-// void buzzerOff() {
-//   buzzer.noTone();
-// }
+void buzzerTone(int frequency, long duration) {
+  buzzer.tone(frequency,duration);
+}
+void buzzerOn() {
+  int frequency = 262;
+  long duration = 500;
+  buzzer.tone(frequency,duration);
+}
+void buzzerOff() {
+  buzzer.noTone();
+}
 
 // onboard led parameters and methods
 #ifdef ME_PORT_DEFINED
-MeRGBLed rgbLed(0);
+MeRGBLed rgbLed(0,2);
+const byte rgbLed_1_IDX = 0;
+const byte rgbLed_2_IDX = 1;
 #else
 MeRGBLed rgbLed(0);
-#endif
 const byte rgbLed_1_IDX = 1;
 const byte rgbLed_2_IDX = 2;
+#endif
 void rgbLedOff() {
   rgbLed.setColor(0,0,0);
   rgbLed.show();
@@ -111,7 +121,7 @@ void rgbLedOff() {
 
 // light sensor parameters and methods
 #ifdef ME_PORT_DEFINED
-MeLightSensor lightsensor();
+MeLightSensor lightsensor(LIGHTSENSOR_PIN);
 #else
 MeLightSensor lightsensor(8, LIGHTSENSOR_PIN);
 #endif
@@ -174,8 +184,8 @@ void move(int dir, int spd) {
   if (dir==DIR_FORWARD) {
     leftSpeed = -spd;
     rightSpeed = spd;
-    rgbLed.setColor(rgbLed_1_IDX, 0, 255, 0);
-    rgbLed.setColor(rgbLed_2_IDX, 0, 255, 0);
+    rgbLed.setColorAt(rgbLed_1_IDX, 0, 255, 0);
+    rgbLed.setColorAt(rgbLed_2_IDX, 0, 255, 0);
     rgbLed.show();
   } else if (dir==DIR_BACKWARD) {
     leftSpeed = spd;
@@ -206,21 +216,27 @@ void stopMotors() {
   motorL.stop();
 //  motorR.setpin(MOTOR_R_DIR_PIN, MOTOR_R_PWM_PIN);
   motorR.stop();
-  rgbLedOff();
+//  rgbLedOff();
+  rgbLed.setColor(255, 255, 0);
+  rgbLed.show();
+
 }
 
 void setup()
 {
   Serial.begin(BAUD);
 #ifndef ME_PORT_DEFINED
-  rgbLed.setpin(RGB_LED_PIN);
   ultrasonic.setpin(ULTRASONIC_SENSOR_S1_PIN, ULTRASONIC_SENSOR_S2_PIN);
   lightsensor.setpin(8, LIGHTSENSOR_PIN);
   pinMode(LIGHTSENSOR_PIN, INPUT);
 #endif
   pinMode(BUTTON_PIN, INPUT);
   digitalWrite(BUTTON_PIN, LOW);
-  rgbLedOff();
+  pinMode(RGB_LED_PIN,OUTPUT);
+  rgbLed.setpin(RGB_LED_PIN);
+//  rgbLedOff();
+  rgbLed.setColor(255, 255, 0);
+  rgbLed.show();
   Serial.println("my-mBot");
 }
 
@@ -250,35 +266,32 @@ void loop()
   }
   if (currentMillis - previousDistanceMeasurementMillis >= DISTANCE_MEASUREMENT_INTERVAL) {
     previousDistanceMeasurementMillis = currentMillis;
-    Serial.print("Distance : "); //Prints the string "Distance : " over the serial most likely the usb. Can be seen using serial monitor in arduino tools setting
-    Serial.print(ultrasonic.distanceCm()); //Prints the value received from the Ultrasonic Sensor in Centimeters. Can be changed to inches with .distanceIn()
-    // mBot note: .distanceIn() does not seem to work on my mBot.
-    Serial.println(" cm");//Prints the string "cm" followed by a new line
-    // if (ultrasonic.distanceCm() < 20) { //if statement to check if data received is less than the value 20, in this case 20 centimeters
-    //   //If value is true the following code executes if false, code will skip this section
-    //   buzzer.tone(262,500); //turns buzzer on
-    //   delay(500); //waits 500 milliseconds or half a second with a minimum value of 100 or 1/10 of a second
-    //   buzzer.tone(0); //turns buzzer off
-    // }
+    unsigned long distance = ultrasonic.distanceCm();
+    Serial.print("Distance : ");
+    Serial.print(distance);
+    Serial.println(" cm");
+    if (distance < 20) {
+      buzzerOn();
+    }
   }
-  if (currentMillis - previousLightSensorMeasurementMillis >= LIGHTSENSOR_MEASUREMENT_INTERVAL) {
-    previousLightSensorMeasurementMillis = currentMillis;
-    // switch off leds before taking a measurement
-    cRGB rgb_1 = rgbLed.getColorAt(rgbLed_1_IDX);
-    cRGB rgb_2 = rgbLed.getColorAt(rgbLed_2_IDX);
-    rgbLedOff();
-    delay(100);
-    Serial.print("Light Level : ");
-    int lightlevel = lightsensor.read();
-    Serial.println(lightlevel);
-    // switch leds to previous state
-    rgbLed.setColor(rgbLed_1_IDX, rgb_1.r, rgb_1.g, rgb_1.b);
-    rgbLed.setColor(rgbLed_2_IDX, rgb_2.r, rgb_2.g, rgb_2.b);
-    rgbLed.show();
-    // if (lightlevel < 100) {
-    //   lightsensor.lightOn();
-    // } else {
-    //   lightsensor.lightOff();
-    // }
-  }
+  // if (currentMillis - previousLightSensorMeasurementMillis >= LIGHTSENSOR_MEASUREMENT_INTERVAL) {
+  //   previousLightSensorMeasurementMillis = currentMillis;
+  //   // switch off leds before taking a measurement
+  //   cRGB rgb_1 = rgbLed.getColorAt(rgbLed_1_IDX);
+  //   cRGB rgb_2 = rgbLed.getColorAt(rgbLed_2_IDX);
+  //   rgbLedOff();
+  //   delay(100);
+  //   Serial.print("Light Level : ");
+  //   int lightlevel = lightsensor.read();
+  //   Serial.println(lightlevel);
+  //   // switch leds to previous state
+  //   rgbLed.setColorAt(rgbLed_1_IDX, rgb_1.r, rgb_1.g, rgb_1.b);
+  //   rgbLed.setColorAt(rgbLed_2_IDX, rgb_2.r, rgb_2.g, rgb_2.b);
+  //   rgbLed.show();
+  //   // if (lightlevel < 100) {
+  //   //   lightsensor.lightOn();
+  //   // } else {
+  //   //   lightsensor.lightOff();
+  //   // }
+  // }
 }

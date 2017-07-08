@@ -105,15 +105,6 @@ void MeUltrasonicSensor::setpin(uint8_t SignalPin)
 #endif // ME_PORT_DEFINED
 }
 
-void MeUltrasonicSensor::setpin(uint8_t SignalPin, uint8_t S2Pin)
-{
-  _SignalPin = SignalPin;
-  _S2Pin = S2Pin;
-  _lastEnterTime = millis();
-  _measureFlag = true;
-  _measureValue = 0;
-}
-
 /**
  * \par Function
  *   distanceCm
@@ -182,50 +173,26 @@ long MeUltrasonicSensor::measure(unsigned long timeout)
   long duration;
   if(millis() - _lastEnterTime > 23)
   {
-    _measureFlag = true;
+    _measureFlag = true; 
   }
 
   if(_measureFlag == true)
   {
-    Serial.println("_measureFlag");
-    Serial.print("_SignalPin: ");
-    Serial.println(_SignalPin);
-    Serial.print("_S2Pin: ");
-    Serial.println(_S2Pin);
     _lastEnterTime = millis();
     _measureFlag = false;
-
-#ifdef ME_PORT_DEFINED
     MePort::dWrite2(LOW);
-#else
-    pinMode(_S2Pin, OUTPUT);
-    digitalWrite(_S2Pin, LOW);
-#endif
     delayMicroseconds(2);
-#ifdef ME_PORT_DEFINED
     MePort::dWrite2(HIGH);
-#else
-    pinMode(_S2Pin, OUTPUT);
-    digitalWrite(_S2Pin, HIGH);
-#endif
     delayMicroseconds(10);
-#ifdef ME_PORT_DEFINED
     MePort::dWrite2(LOW);
-#else
-    pinMode(_S2Pin, OUTPUT);
-    digitalWrite(_S2Pin, LOW);
-#endif
-    pinMode(_SignalPin, INPUT);
-    duration = pulseIn(_SignalPin, HIGH, timeout);
-    Serial.print("duration: ");
-    Serial.println(duration);
+    pinMode(s2, INPUT);
+    duration = pulseIn(s2, HIGH, timeout);
     _measureValue = duration;
   }
   else
   {
     duration = _measureValue;
   }
-  Serial.print("duration: ");
-  Serial.println(duration);
   return(duration);
 }
+

@@ -232,7 +232,6 @@ void MeRGBLed::reset(uint8_t port,uint8_t slot)
   }
 }
 #endif //ME_PORT_DEFINED
-
 /**
  * \par Function
  *   setpin
@@ -253,10 +252,8 @@ void MeRGBLed::setpin(uint8_t port)
   pinMask   = digitalPinToBitMask(port);
   ws2812_port = portOutputRegister(digitalPinToPort(port) );
   pinMode(port, OUTPUT);
-#ifdef ME_PORT_DEFINED
   _port = 0;
   _slot = SLOT2;
-#endif //ME_PORT_DEFINED
 }
 
 /**
@@ -664,3 +661,4 @@ MeRGBLed::~MeRGBLed(void)
   free(pixels);
   pixels = NULL;
 }
+

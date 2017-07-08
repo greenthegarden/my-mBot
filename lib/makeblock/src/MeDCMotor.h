@@ -45,9 +45,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <Arduino.h>
+#include "MeConfig.h"
 
 #ifdef ME_PORT_DEFINED
-#include "MeConfig.h"
 #include "MePort.h"
 #endif
 
@@ -87,7 +87,7 @@ public:
  * \param[in]
  *   pwm_pin - arduino port for pwm input(should analog pin)
  */
-  MeDCMotor(uint8_t dir_pin, uint8_t pwm_pin);
+  MeDCMotor(uint8_t dir_pin,uint8_t pwm_pin);
 #endif // ME_PORT_DEFINED
 /**
  * \par Function
@@ -176,3 +176,4 @@ private:
   int16_t  last_speed;
 };
 #endif
+

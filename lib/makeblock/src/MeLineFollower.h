@@ -45,9 +45,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <Arduino.h>
+#include "MeConfig.h"
 
 #ifdef ME_PORT_DEFINED
-#include "MeConfig.h"
 #include "MePort.h"
 #endif // ME_PORT_DEFINED
 
@@ -83,7 +83,7 @@ public:
  *   port - RJ25 port from PORT_1 to M2
  */
   MeLineFollower(uint8_t port);
-#else // ME_PORT_DEFINED
+#else // ME_PORT_DEFINED 
 /**
  * Alternate Constructor which can call your own function to map the line follwer device to arduino port,
  * it will assigned the input pin.

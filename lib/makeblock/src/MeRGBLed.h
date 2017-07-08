@@ -49,9 +49,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <Arduino.h>
+#include "MeConfig.h"
 
 #ifdef ME_PORT_DEFINED
-#include "MeConfig.h"
 #include "MePort.h"
 #endif // ME_PORT_DEFINED
 
@@ -149,7 +149,7 @@ public:
 
 #ifdef ME_PORT_DEFINED
 /**
- * \par Function
+ * \par Function 
  *   reset
  * \par Description
  *   Reset the LED available data PIN by its RJ25 port, and slot2 will be used as default.

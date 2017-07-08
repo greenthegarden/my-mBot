@@ -56,9 +56,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <Arduino.h>
+#include "MeConfig.h"
 
 #ifdef ME_PORT_DEFINED
-#include "MeConfig.h"
 #include "MePort.h"
 #endif // ME_PORT_DEFINED
 
@@ -114,9 +114,7 @@ public:
  *   None
  */
   void setpin(uint8_t SignalPin);
-  void setpin(uint8_t SignalPin, uint8_t SecondaryPin);
-
-
+  
 /**
  * \par Function
  *   distanceCm
@@ -165,14 +163,12 @@ public:
  *   None
  */
   long measure(unsigned long = 30000);
-//  long measure(byte s2, unsigned long = 30000);
-
 private:
   volatile uint8_t  _SignalPin;
-  volatile uint8_t  _S2Pin;
   volatile bool _measureFlag;
   volatile long _lastEnterTime;
   volatile float _measureValue;
 };
 
-#endif
+#endif 
+
