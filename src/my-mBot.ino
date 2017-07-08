@@ -130,24 +130,28 @@ const unsigned long LIGHTSENSOR_MEASUREMENT_INTERVAL = 1UL * 1000UL;
 unsigned long previousLightSensorMeasurementMillis = 0UL;
 
 // line-follower parameters and methods
-// MeLineFollower lineFinder(PORT_2);
-//const byte LINEFOLLOWER_PIN = PORT_2_D1_PIN;
-
-// int sensorState = lineFinder.readSensors();
-// void readLine() {
-//   switch(sensorState) {
-//     case S1_IN_S2_IN:
-//       Serial.println("Sensor 1 and 2 are inside of black line"); break;
-//     case S1_IN_S2_OUT:
-//       Serial.println("Sensor 2 is outside of black line"); break;
-//     case S1_OUT_S2_IN:
-//       Serial.println("Sensor 1 is outside of black line"); break;
-//     case S1_OUT_S2_OUT:
-//       Serial.println("Sensor 1 and 2 are outside of black line"); break;
-//     default:
-//       break;
-//   }
-// }
+#ifdef ME_PORT_DEFINED
+MeLineFollower lineFinder(PORT_2);
+#else
+const byte LINEFOLLOWER_PIN = PORT_2_D1_PIN;
+#endif
+const unsigned long LINEFINDER_MEASUREMENT_INTERVAL = 1UL * 1000UL;
+unsigned long previousLineFinderMeasurementMillis = 0UL;
+int lineFinderSensorState;
+void readLine() {
+  switch(lineFinderSensorState) {
+    case S1_IN_S2_IN:
+      Serial.println("Sensor 1 and 2 are inside of black line"); break;
+    case S1_IN_S2_OUT:
+      Serial.println("Sensor 2 is outside of black line"); break;
+    case S1_OUT_S2_IN:
+      Serial.println("Sensor 1 is outside of black line"); break;
+    case S1_OUT_S2_OUT:
+      Serial.println("Sensor 1 and 2 are outside of black line"); break;
+    default:
+      break;
+  }
+}
 
 // ultrasonic sensor parameters and methods
 #ifdef ME_PORT_DEFINED
@@ -207,15 +211,11 @@ void move(int dir, int spd) {
     rgbLed.setColor(rgbLed_2_IDX, 0, 255, 0);
     rgbLed.show();
   }
-//  motorL.setpin(MOTOR_L_DIR_PIN, MOTOR_L_PWM_PIN);
   motorL.run(leftSpeed);
-//  motorR.setpin(MOTOR_R_DIR_PIN, MOTOR_R_PWM_PIN);
   motorR.run(rightSpeed);
 }
 void stopMotors() {
-//  motorL.setpin(MOTOR_L_DIR_PIN, MOTOR_L_PWM_PIN);
   motorL.stop();
-//  motorR.setpin(MOTOR_R_DIR_PIN, MOTOR_R_PWM_PIN);
   motorR.stop();
   rgbLedOff();
   // if (!rgbLed.setColor(255, 255, 0)) {
@@ -282,6 +282,11 @@ void loop()
     if (distance < 20) {
       buzzerOn();
     }
+  }
+  if (currentMillis - previousLineFinderMeasurementMillis >= LINEFINDER_MEASUREMENT_INTERVAL) {
+    previousLineFinderMeasurementMillis = currentMillis;
+    lineFinderSensorState = lineFinder.readSensors();
+    readLine();
   }
   if (currentMillis - previousLightSensorMeasurementMillis >= LIGHTSENSOR_MEASUREMENT_INTERVAL) {
     previousLightSensorMeasurementMillis = currentMillis;
